@@ -1,0 +1,4 @@
+- Show welcome modal.
+- Water animation
+- Finish first page
+

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<!--
+  * Please see the included README.md file for license terms and conditions.
+  -->
+
+<head>
+    <title>Blank Cordova Mobile App Template</title>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+    <!-- see http://webdesign.tutsplus.com/tutorials/htmlcss-tutorials/quick-tip-dont-forget-the-viewport-meta-tag -->
+    <!-- <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1"> -->
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=no">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, minimum-scale=1, maximum-scale=2"> -->
+    <style>
+        /* following two viewport lines are equivalent to meta viewport statement above, and is needed for Windows */
+        /* see http://www.quirksmode.org/blog/archives/2014/05/html5_dev_conf.html and http://dev.w3.org/csswg/css-device-adapt/ */
+        
+        @-ms-viewport {
+            width: 100vw;
+            min-zoom: 100%;
+            zoom: 100%;
+        }
+        
+        @viewport {
+            width: 100vw;
+            min-zoom: 100% zoom: 100%;
+        }
+        
+        @-ms-viewport {
+            user-zoom: fixed;
+            min-zoom: 100%;
+        }
+        
+        @viewport {
+            user-zoom: fixed;
+            min-zoom: 100%;
+        }
+        /*@-ms-viewport { user-zoom: zoom ; min-zoom: 100% ; max-zoom: 200% ; }   @viewport { user-zoom: zoom ; min-zoom: 100% ; max-zoom: 200% ; }*/
+
+    </style>
+
+    <!-- See explanation at the bottom of this file for info regarding placement of JS libraries. -->
+    <!-- These library references (below) are just examples to give you the general idea... -->
+    <!-- <script src="lib/mc/hammer.js"></script> -->
+    <!-- <script src="lib/ft/fastclick.js"></script> -->
+    <!-- <script src="lib/jq/jquery.js"></script> -->
+
+    <link rel="stylesheet" href="css/app.css">
+
+    <link rel="stylesheet" href="bower_components/propeller/dist/css/bootstrap.min.css">
+
+    <link href="bower_components/propeller/dist/fonts/font-material.css" rel="stylesheet">
+
+    <!-- Propeller css -->
+    <link href="bower_components/propeller/dist/css/propeller.min.css" rel="stylesheet">
+   
+    <script>
+        document.addEventListener('deviceready', function() {
+            cordova.plugins.autoStart.enable();
+            cordova.plugins.backgroundMode.enable();
+            cordova.plugins.backgroundMode.setDefaults({
+                title: "H20+",
+                text: "Você já se hidratou? ;)",
+                resume: true,
+                hidden: false
+            });
+            setInterval(function() {
+                //captura a hora atual
+                var hour = new Date();
+                var now = ('0' + hour.getHours()).slice(-2) + ':' + ('0' + (hour.getMinutes())).slice(-2);
+
+                //captura a hora agendada
+                var acordar = document.getElementById("wake").value;
+                var almocar = document.getElementById("lunch").value;
+                var banho = document.getElementById("shower").value;
+                var janta = document.getElementById("dinner").value;
+                var dormir = document.getElementById("sleep").value;
+				
+				alert(now+ " "+acordar);
+                //compara a hora atual com a hora agendada
+                if (now == acordar || now == almocar || now == banho || now == janta || now == dormir) cordova.plugins.notification.local.schedule({
+                    id: 1,
+                    icon: "https://imgur.com/fbNPbxJ.png",
+                    title: "H2O+",
+                    message: "Hora de tomar água!"
+                });
+            }, 10000); //60 segundos
+        }, false);
+
+    </script>
+</head>
+
+
+<body onload="if(localStorage.getItem('name') == null) $('#form-dialog').modal('show');" id="body">
+
+    <!-- Nav menu -->
+    <nav class="navbar navbar-inverse pmd-navbar navbar-fixed-top pmd-z-depth" style="position:absolute;">
+        <div class="container-fluid">
+            <!-- Sidebar Toggle Button-->
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <a href="javascript:void(0);" class="btn btn-sm pmd-btn-fab pmd-btn-flat pmd-ripple-effect btn-primary pull-left margin-r8 pmd-sidebar-toggle"><i class="material-icons">menu</i></a>
+                <a class="navbar-brand active" href="javascript:void(0);">H2O+</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <section id="pmd-main">
+        <!-- Left sidebar -->
+        <aside class="pmd-sidebar sidebar-custom sidebar-default pmd-sidebar-left-fixed pmd-sidebar-left pmd-z-depth sidebar-hide-custom" role="navigation" style="position: absolute;">
+            <ul class="nav pmd-sidebar-nav">
+                <!-- My Account -->
+                <li class="dropdown pmd-dropdown pmd-user-info">
+                    <a aria-expanded="false" data-toggle="dropdown" data-sidebar="true" class="btn-user dropdown-toggle media" href="javascript:void(0);">
+                        <div class="media-left">
+                            <img width="40" height="40" alt="avatar" src="media/profile-pic.png">
+                        </div>
+                        <div class="media-body media-middle"><span id="username"></span></div>
+                        <div class="media-right media-middle"><i class="material-icons pmd-sm">more_vert</i></div>
+                    </a>
+                    <ol class="dropdown-menu">
+                        <li> <a class="pmd-ripple-effect" href="javascript:void(0); $('#form-dialog').modal('show');" tabindex="-1"><i class="material-icons media-left media-middle">history</i> <span class="media-body">Trocar de usuário</span></a></li>
+                    </ol>
+                </li>
+                <li data-target="#avatar-dialog" data-toggle="modal"> <a class="pmd-ripple-effect" href="javascript:void(0);"><i class="material-icons media-left media-middle">watch_later</i> <span class="media-body">Horários</span></a> </li>
+                <li data-target="#small-dialog" data-toggle="modal"> <a class="pmd-ripple-effect" href="javascript:void(0);"><i class="material-icons media-left media-middle">info</i> <span class="media-body">Sobre a água</span></a></li>
+                <li onclick="navigator.app.exitApp();"> <a class="pmd-ripple-effect" href="javascript:void(0);" tabindex="-1"><i class="material-icons media-left media-middle">exit_to_app</i> <span class="media-body">Sair</span></a></li>
+            </ul>
+        </aside>
+
+        <!-- Content -->
+        <div class="pmd-content" id="content">
+            <h2 class="headline">Olá, seja bem-vindo! :)</h2>
+            <p>Esse aplicativo foi desenvolvido com o intuito de ajudar as pessoas a se hidratarem, o cálculo de água que dever consumida diariamente é feito através da sua massa corporal (35ml x seu peso). Defina sua rotina abrindo o menu lateral e acessando "Horários", para mais informações acesse "Sobre a água". Quando você beber água clique em uma das imagens logo abaixo.</p>
+            <h2 class="headline">Total de Água Consumida</h2>
+            <center><img src="media/water.png"></center><br>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress"><span style="color: black;" id="progresslabel"></span></div>
+            </div>
+            <table style="width: 100%">
+                <tr>
+                    <td>
+                        <center>
+                            <a href="javascrip:void(0);" onclick="update(250);"><img src="media/water-glass.png"></a><br>
+                            <small class="text-muted">Beber copo d'água</small>
+                        </center>
+                    </td>
+                    <td>
+                        <center>
+                            <a href="javascrip:void(0);" onclick="update(500);"><img src="media/water-bottle.png"></a><br>
+                            <small class="text-muted">Beber garrafa d'água</small>
+                        </center>
+                    </td>
+                    <td>
+                        <center>
+                            <a href="javascrip:void(0);" onclick="if(parseInt(localStorage.getItem('drank')) > 0) update(-250);"><img src="media/x-button.png"></a><br>
+                            <small class="text-muted">Retirar um copo </small>
+                        </center>
+                    </td>
+                </tr>
+            </table>
+
+            <div tabindex="-1" class="modal fade" id="small-dialog" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button aria-hidden="true" data-dismiss="modal" class="close" type="button">x</button>
+                            <div class="media-left">
+                                <a href="javascript:void(0);" class="avatar-list-img"> <img width="40" height="40" src="media/OMS.png"> </a>
+                            </div>
+                            <div class="media-body media-middle">
+                                <h3 class="pmd-card-title-text">OMS - Organização Mundial da Saúde</h3>
+                                <span class="pmd-card-subtitle-text">17/09/2017 19:53.</span>
+                            </div>
+                        </div>
+                        <div class="modal-body">Nutricionistas aconselham: <br> &bull;2 copos de água, depois de acordar, ajuda a ativar os órgãos internos. <br> &bull;1 copo de água, 30 minutos antes de comer, ajuda na digestão. <br> &bull;1 copo de água, antes de tomar banho, ajuda a baixar a pressão sanguínea. <br> &bull;1 copo de água, antes de ir dormir, evita ataques do coração. <br> Essa sugestão se baseia na quantidade de água existente em cada órgão do nosso corpo:
+                        </div>
+                        <div class="pmd-modal-media"> <img width="1184" height="666" class="img-responsive" src="media/body-water.png"> </div>
+                        <div class="modal-body">
+                            <small class="text-muted">Contexto criado para projeto escolar, podem ter informações falsas.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Modal -->
+            <div tabindex="-1" class="modal fade" id="form-dialog" style="display: none;" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header pmd-modal-bordered">
+                            <center>
+                                <h2 class="pmd-card-title-text-sm">Seja Bem-Vindo!</h2> <br> <br>
+                                <img src="media/smartphone.png"> <br> <br> <br>
+                                Agradecemos a escolha pelo aplicativo H2O+. <br> <br>
+                            </center>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal" id="login">
+                                <div class="form-group pmd-textfield pmd-textfield-floating-label">
+                                    <label for="first-name">Digite o seu nome:</label>
+                                    <input type="text" class="mat-input form-control" id="name" required>
+                                </div>
+                                <div class="form-group pmd-textfield pmd-textfield-floating-label">
+                                    <label for="first-name">Peso (aproximado):</label>
+                                    <input type="number" min="0" max="500" class="mat-input form-control" id="weight" required>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="pmd-modal-action">
+                            <center><button class="btn pmd-ripple-effect btn-primary" type="submit" form="login" onclick="Storage();">Continuar</button></center>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Avatar Listing -->
+            <div tabindex="-1" class="modal fade" id="avatar-dialog" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header pmd-modal-bordered">
+                            <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                            <h2 class="pmd-card-title-text">Alarmes</h2>
+                        </div>
+                        <div class="pmd-modal-list">
+                            <ul class="list-group pmd-list-avatar">
+                                <li class="list-group-item">
+                                    <div class="media-left">
+                                        <a href="javascript:void(0);" class="avatar-list-img"> <img alt="32x32" data-src="holder.js/32x32" class="img-responsive" src="media/wake.png" data-holder-rendered="true"> </a>
+                                    </div>
+                                    <div class="media-body media-middle">
+                                        <div style="float: left;">Hora que acorda:</div>
+                                        <div style="float: right;"><input type="time" id="wake" style="align-self: flex-end" onchange="Time('wake');"></div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="media-left">
+                                        <a href="javascript:void(0);" class="avatar-list-img"> <img alt="32x32" data-src="holder.js/32x32" class="img-responsive" src="media/meal.png" data-holder-rendered="true"> </a>
+                                    </div>
+                                    <div class="media-body media-middle">
+                                        <div style="float: left;">Almoço:</div>
+                                        <div style="float: right;"><input type="time" id="lunch" onchange="Time('lunch');"></div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="media-left">
+                                        <a href="javascript:void(0);" class="avatar-list-img"> <img alt="32x32" data-src="holder.js/32x32" class="img-responsive" src="media/shower.png" data-holder-rendered="true"> </a>
+                                    </div>
+                                    <div class="media-body media-middle">
+                                        <div style="float: left;">Banho:</div>
+                                        <div style="float: right;"><input type="time" id="shower" onchange="Time('shower');"></div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="media-left">
+                                        <a href="javascript:void(0);" class="avatar-list-img"> <img alt="32x32" data-src="holder.js/32x32" class="img-responsive" src="media/dinner.png" data-holder-rendered="true"> </a>
+                                    </div>
+                                    <div class="media-body media-middle">
+                                        <div style="float: left;">Jantar:</div>
+                                        <div style="float: right;"><input type="time" id="dinner" onchange="Time('dinner');"></div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="media-left">
+                                        <a href="javascript:void(0);" class="avatar-list-img"> <img alt="32x32" data-src="holder.js/32x32" class="img-responsive" src="media/sleep.png" data-holder-rendered="true" id="vamola"> </a>
+                                    </div>
+                                    <div class="media-body media-middle">
+                                        <div style="float: left;">Hora de dormir:</div>
+                                        <div style="float: right;"><input type="time" id="sleep" onchange="Time('sleep');"></div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="pmd-modal-action text-right pmd-modal-bordered">
+                            <button data-dismiss="modal" class="btn pmd-ripple-effect btn-primary pmd-btn-flat" type="button">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="pmd-sidebar-overlay"></div>
+    </section>
+
+    <script>
+        document.getElementById('username').innerHTML = localStorage.getItem('name');
+
+        if (localStorage.getItem("wake") != null) document.getElementById("wake").value = localStorage.getItem("wake");
+        if (localStorage.getItem("lunch") != null) document.getElementById("lunch").value = localStorage.getItem("lunch");
+        if (localStorage.getItem("shower") != null) document.getElementById("shower").value = localStorage.getItem("shower");
+        if (localStorage.getItem("dinner") != null) document.getElementById("dinner").value = localStorage.getItem("dinner");
+        if (localStorage.getItem("sleep") != null) document.getElementById("sleep").value = localStorage.getItem("sleep");
+        
+        function Storage(){
+            if (document.getElementById("name").value != "" && document.getElementById("weight").value != ""){
+                localStorage.setItem("name", document.getElementById("name").value);
+                localStorage.setItem("weight", document.getElementById("weight").value);
+            }
+        }
+        
+        function update(quantidade){
+            var recommended = 35 * parseFloat(localStorage.getItem("weight"));
+            var sum = 0;
+            var porcent;
+            if(localStorage.getItem("drank") != null){
+                sum = parseInt(localStorage.getItem("drank")) + quantidade;
+            }else sum = quantidade;
+            localStorage.setItem("drank", sum);
+            porcent = parseFloat(localStorage.getItem("drank")) / recommended * 100;
+            document.getElementById("progress").style.width = parseInt(porcent)+"%";
+            document.getElementById("progress").style.maxWidth = "100%";
+            document.getElementById("progresslabel").innerHTML = "Consumiu: " + localStorage.getItem("drank") + "ml. Total: " + porcent.toFixed(2) + "%";
+            var width = document.getElementById("progress").style.width.split("%");
+            width = parseInt(width);
+            if(width < 54) document.getElementById("progresslabel").innerHTML = localStorage.getItem("drank") +"ml "+ porcent.toFixed(2) + "%";
+        }
+
+        function Time(inputid) {
+            localStorage.setItem(inputid, document.getElementById(inputid).value);
+        }
+        
+        if(localStorage.getItem("name") != null) window.onload = update(0);
+    </script>
+
+    <!-- IMPORTANT: Do not include a weinre script tag as part of your release builds! -->
+    <!-- Place your remote debugging weinre script URL here, if it does not work below. -->
+
+    <!-- See <head> section above for additional JS libraries loaded as part of this application. -->
+
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
+
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script type="text/javascript" src="bower_components/propeller/dist/js/bootstrap.js"></script>
+    <script type="text/javascript" src="bower_components/propeller/dist/js/propeller.js"></script>
+
+    <!-- "Phantom" cordova.js required for projects that use Cordova plugins. -->
+    <script src="cordova.js"></script>
+
+    <!-- for your event code, see README and file comments for details -->
+    <script src="js/app.js"></script>
+    <!-- for your init code, see README and file comments for details -->
+    <script src="js/init-app.js"></script>
+    <!-- normalizes device and document ready events, see file for details -->
+    <script src="xdk/init-dev.js"></script>
+
+    <!-- IMPORTANT: Do not include a weinre script tag as part of your release builds! -->
+    <!-- Place your remote debugging weinre script URL here, if it does not work above. -->
+</body>
+
+<!--
+
+    Recommended JavaScript library load order for hybrid Cordova apps:
+
+    * "Device-Independent" JavaScript libraries.
+    * optional: weinre debug script tag for remote console debug (see notes).
+    * Intel XDK device JavaScript library.
+    * Cordova/PhoneGap device JavaScript library.
+    * "Device-Dependent" JavaScript libraries.
+    * Application JavaScript <script> tags and libraries.
+    * optional: weinre debug script tag for remote console debug (see notes).
+
+    In complex projects, the JavaScript load order is important. You must
+    insure that the underlying device API native code finishes its init, which
+    usually takes longer than the webview init...
+
+    VERY IMPORTANT: notice that all of the libraries used in this project are
+    located within the app's local directories, which means they will get
+    bundled with the app. They are NOT being pulled in over the net. In most
+    cases, this is what you should be doing when you build a hybrid mobile
+    app. This insures that you always use the JS code that you debugged
+    against AND that you are not requiring a data connection (network
+    connection) to get the app started. If your app startup required a data
+    connection to initialize and start interaction with the user, lack of a
+    reliable network connection could be disasterous. Not to mention it
+    generally results in a slower load time. Loading locally is much
+    friendlier to your end user's data plan and their device battery.  :-)
+
+    NOTE: do not use a directory prefix with the cordova.js file - it is
+    inserted automatically by the build system, simulator and other tools and
+    is assumed to be in the index.html source directory. You will not find
+    this JS file anywhere in your project, it is a "phantom" library. If you
+    do see copies of this file as part of your project it should be removed to
+    avoid confusion and problems.
+
+    LIBRARY NOTE: If you are using a large number of JavaScript libraries,
+    especially third-party libraries (like jQuery, {{ mustache }}, Underscore,
+    etc.) that are "independent" of the device APIs provided by the Cordova
+    library and plugins - and they are independent of your app code - your
+    app initialization will be most successful if you load these libraries
+    BEFORE the Cordova JS file, in the <head> section of your index.html file.
+    Obviously, any code that depends on Cordova APIs must be loaded AFTER the
+    cordova.js library.
+
+    Libraries that are "independent" of the device APIs are libraries that you
+    could use in a desktop browser. "Dependent" libraries are, most likely,
+    your own code that you've written specifically to work with the Cordova
+    device APIs. In some cases, if your device-dependent code requires access
+    to device-independent code to get started, you may have to use something
+    like CommonJS to force the device-dependent code to wait for the
+    device-independent code to initialize, otherwise you may have trouble
+    getting your app started.
+
+    Because of this added dependency on the underlying native code (device)
+    initialization, you should not use the "document ready" event to start
+    your application. You should wait for the cordova "deviceready" event
+    before you begin your application (if it uses any Cordova device APIs); in
+    practice, it is best to wait for both. (See the init-dev.js file in this
+    template for an example of how to wait for both, it generates a custom
+    "app.Ready" event that you can wait for and just forget about the other
+    events.)
+
+    NOTE: *any* library that redefines addEventListener() or fiddles with
+    outstanding events may interfere with capturing the Cordova "deviceready"
+    event and should, therefore, be placed *BEFORE* the Cordova JS library in
+    the load order.
+
+    ALSO: if you use weinre for debugging, you may have to experiment with the
+    placement of the weinre script. Some recommended locations are shown
+    within this app. If these locations do not work, you may have to
+    experiment. The optimum placement can be app-specific, primarily as a
+    function of the included JavaScript libraries and your initialization.
+
+-->
+
+</html>
